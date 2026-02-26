@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- background -->
+  <rect width="64" height="64" rx="14" fill="#0b1320"/>
+
+  <!-- subtle panel -->
+  <rect x="6" y="10" width="52" height="44" rx="10" fill="#101a2d" opacity="0.9"/>
+
+  <!-- labor curve -->
+  <path d="M14 44
+           C 20 44, 22 40, 26 38
+           C 30 36, 32 34, 34 30
+           C 36 26, 38 22, 44 20
+           C 50 18, 52 16, 50 16"
+        fill="none"
+        stroke="#4ea1ff"
+        stroke-width="4.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- dot marker -->
+  <circle cx="26" cy="38" r="3.5" fill="#2fe3a5"/>
+</svg>
