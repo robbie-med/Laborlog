@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b1320" />
+  <title>LaborCurve Logbook</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="title">LaborCurve Logbook</div>
+        <div class="subtitle">Offline labor timeline • curves • intuition trainer</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="btnInstall" class="btn secondary hidden">Install</button>
+      <button id="btnExportAll" class="btn secondary">Export</button>
+      <label class="btn secondary file">
+        Import
+        <input id="fileImportAll" type="file" accept=".json,.laborlog,.laborlog.json,application/json" />
+      </label>
+      <button id="btnSettings" class="btn secondary">Settings</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel left">
+      <div class="panel-header">
+        <h2>Encounters</h2>
+        <button id="btnNewEncounter" class="btn primary">New</button>
+      </div>
+
+      <div class="search-row">
+        <input id="encSearch" class="input" placeholder="Search (tags, notes)..." />
+        <select id="encFilter" class="select">
+          <option value="all">All</option>
+          <option value="open">Open</option>
+          <option value="delivered">Delivered</option>
+          <option value="cs">C/S</option>
+        </select>
+      </div>
+
+      <div id="encList" class="list"></div>
+      <div class="hint">
+        Tip: avoid PHI. Use short tags like “G1 39w IOL OP”.
+      </div>
+    </section>
+
+    <section class="panel right">
+      <div id="emptyState" class="empty">
+        <div class="empty-card">
+          <h2>No encounter selected</h2>
+          <p>Create an encounter and start adding events (SVE, ROM, epidural, oxytocin, vitals).</p>
+          <button id="btnNewEncounter2" class="btn primary">New encounter</button>
+        </div>
+      </div>
+
+      <div id="encView" class="hidden">
+        <div class="panel-header enc-header">
+          <div>
+            <h2 id="encTitle">Encounter</h2>
+            <div id="encMeta" class="meta"></div>
+          </div>
+          <div class="enc-actions">
+            <button id="btnAddSVE" class="btn primary">+ SVE</button>
+            <button id="btnAddMed" class="btn">+ Med</button>
+            <button id="btnAddROM" class="btn">+ ROM</button>
+            <button id="btnAddVitals" class="btn">+ Vitals</button>
+            <button id="btnAddFetal" class="btn">+ Fetal</button>
+            <button id="btnOutcome" class="btn danger">Outcome</button>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="timeline">Timeline</button>
+          <button class="tab" data-tab="curves">Curves</button>
+          <button class="tab" data-tab="predict">Predict</button>
+          <button class="tab" data-tab="summary">Summary</button>
+        </div>
+
+        <div class="tabpanes">
+          <section id="tab-timeline" class="tabpane">
+            <div class="split">
+              <div>
+                <h3>Events</h3>
+                <div id="eventList" class="list"></div>
+              </div>
+              <div>
+                <h3>Quick stats</h3>
+                <div id="quickStats" class="cards"></div>
+                <h3 class="mt">Notes</h3>
+                <textarea id="encNotes" class="textarea" placeholder="Optional clinical notes (avoid PHI)"></textarea>
+                <div class="row mt">
+                  <input id="encTags" class="input" placeholder="Tags (comma separated)" />
+                  <button id="btnSaveEncMeta" class="btn secondary">Save</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="tab-curves" class="tabpane hidden">
+            <div class="curve-toolbar">
+              <div class="row">
+                <label class="chk"><input id="ovNullip" type="checkbox" checked /> Nullip ref</label>
+                <label class="chk"><input id="ovMultip" type="checkbox" /> Multip ref</label>
+                <label class="chk"><input id="ovInduction" type="checkbox" /> Induction adj</label>
+                <label class="chk"><input id="ovEpidural" type="checkbox" /> Epidural adj</label>
+                <label class="chk"><input id="ovOP" type="checkbox" /> OP/OT adj</label>
+              </div>
+              <div class="row">
+                <button id="btnExportEnc" class="btn secondary">Export encounter</button>
+                <button id="btnDeleteEnc" class="btn danger">Delete encounter</button>
+              </div>
+            </div>
+
+            <div class="charts">
+              <div class="chart-card">
+                <div class="chart-title">Cervical dilation (cm) vs time</div>
+                <canvas id="chartDilation" height="260"></canvas>
+              </div>
+              <div class="chart-card">
+                <div class="chart-title">Station vs time</div>
+                <canvas id="chartStation" height="260"></canvas>
+              </div>
+            </div>
+
+            <div class="small-hint">
+              Markers: ROM, epidural, oxytocin changes. Shaded band indicates active phase (configurable, default ≥6 cm).
+            </div>
+          </section>
+
+          <section id="tab-predict" class="tabpane hidden">
+            <div class="split">
+              <div>
+                <h3>Now</h3>
+                <div id="predictNow" class="cards"></div>
+                <h3 class="mt">Replay (intuition training)</h3>
+                <div class="row">
+                  <select id="replayAt" class="select"></select>
+                  <button id="btnReplay" class="btn secondary">Show</button>
+                </div>
+                <div id="replayCard" class="cards mt"></div>
+              </div>
+              <div>
+                <h3>What the predictor uses</h3>
+                <div id="predictExplain" class="cards"></div>
+                <h3 class="mt">Phase flags</h3>
+                <div id="phaseFlags" class="cards"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="tab-summary" class="tabpane hidden">
+            <div class="row">
+              <button id="btnCopySummary" class="btn secondary">Copy</button>
+            </div>
+            <pre id="summaryText" class="pre"></pre>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODALS -->
+  <div id="modalBackdrop" class="backdrop hidden"></div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div id="modalTitle" class="modal-title">Modal</div>
+      <button id="modalClose" class="btn x">✕</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+    <div class="modal-footer">
+      <button id="modalCancel" class="btn secondary">Cancel</button>
+      <button id="modalOk" class="btn primary">Save</button>
+    </div>
+  </div>
+
+  <!-- Chart.js (cached by service worker after first load) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
+          integrity="sha384-+mQW1mXrQX5u8QvS1Wm5g2oUQ0tN4qvOaQv8v2f6xw1yqO7a2c5mVJYwqY8gQ5vG"
+          crossorigin="anonymous"></script>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
