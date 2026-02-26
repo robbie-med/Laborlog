@@ -213,11 +213,13 @@ h3{ font-size:15px; color:#d9e3ff; }
   grid-template-columns: 1fr;
   gap:12px;
 }
-.chart-card{
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:10px;
-  background:rgba(10,16,30,.25);
+.chart-card {
+  height: 320px;
+  max-height: 320px;
+}
+
+.chart-card canvas {
+  height: 100% !important;
 }
 .chart-title{ font-weight:800; margin-bottom:10px; }
 .small-hint{ margin-top:10px; color:var(--muted); font-size:12px; }
